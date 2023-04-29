@@ -1,24 +1,47 @@
-#!/usr/bin/env bash
-# Does the following:
-#   Create a file /var/run/myscript.pid containing the script PID.
-#   Displays "To infinity and beyond" indefinitely
-#   Displays "I hate the kill command" upon receiving a SIGTERM
-#   Displays "Y U no love me?!" upon receiving a SIGINT
-#   Deletes the file /var/run/myscript.pid and terminates upon
-#+  receiving a SIGQUIT or SIGTERM.
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
-terminator() {
-  rm /var/run/myscript.pid
-  exit
+/**
+ * infinite_while - Run an infinite while loop.
+ *
+ * Return: Always 0.
+ */
+int infinite_while(void)
+{
+	while (1)
+	{
+		sleep(1);
+	}
+	return (0);
 }
 
-echo "$$" > /var/run/myscript.pid
+/**
+ * main - Creates five zombie processes.
+ *
+ * Return: Always 0.
+ */
+int main(void)
+{
+	pid_t pid;
+	char count = 0;
 
-while true
-do
-  echo "To infinity and beyond"
-  sleep 2
-  trap 'echo "Y U no love me?!"' SIGINT
-  trap 'echo "I hate the kill command" && terminator' SIGTERM
-  trap 'terminator' SIGQUITgit 
-done
+	while (count < 5)
+	{
+		pid = fork();
+		if (pid > 0)
+		{
+			printf("Zombie process created, PID: %d\n", pid);
+			sleep(1);
+			count++;
+		}
+		else
+			exit(0);
+	}
+
+	infinite_while();
+
+	return (EXIT_SUCCESS);
+}
